@@ -7,6 +7,31 @@ spark: SparkSession = (
     .getOrCreate()
 )
 
+"""
+* DataFrameReader.format(args).option("key", "value").schema(args).load()
+* 오직 SparkSession 인스턴스를 통해서만 DataFrameReader에 액세스 할 수 있음.
+* 인스턴스 핸들을 얻기 위해서는 SparkSession.read or SparkSession.readStream 사용
+* SparkSession.read: 정적 데이터 소스에서 DataFrame으로 읽기 위해 DataFrameReader에 대한 핸들을 반환
+* SparkSession.readStream: 스트리밍 소스에서 읽을 인스턴스를 반환
+
+* format(args)
+*   - args: parquet, csv, txt, json, jdbc, orc, avro, ...
+*   - description: 이 함수를 지정하지 않으면 기본값은 파케이 또는 spark.sql.sources.default에 지정된 항목으로 설정
+
+* option(key, value)
+*   - key, value
+*       : mode, {PERMISSIVE | FAILFAST | DROPMALFORMED}
+*       : inferSchema, {true | false}
+*       : path, path_file_data_source
+*   - description: 다양한 모드와 그 동작에 대해 설명함. 기본 모드는 PERMISSIVE. inferSchema 및 mode 옵션은 JSON 및 CSV 파일 형식에만 적용됨.
+
+* schema(args)
+*   - args: DDL 문자열 또는 StructType
+*   - description: JSON 또는 CSV 형식의 경우 option() 함수에서 스키마를 유추하도록 지정할 수 있음.
+*                  일반적으로 모든 타입에 대한 스키마를 제공하면 로드 속도가 빨라지고 데이터가 예상 스키마에 부합하도록 보장할 수 있음.
+"""
+
+
 # * spark.read.csv(): csv 파일을 읽어서 row 객체와 스키마에 맞는 타입의 이름 있는 컬럼들로 이루어진 데이터 프레임을 되돌려 줌.
 # * 스키마를 미리 지정하고 싶지 않다면, 스파크가 적은 비용으로 샘플링해서 스키마를 추론할 수 있게 할 수 있음.
 sf_fire_df = (
@@ -237,10 +262,28 @@ agg_df.show()
 +--------------+------------------+-----------+----------+
 """
 
-# * 데이터 프레임을 외부 데이터 소스에 원하는 포맷으로 쓰려면 DataFrameWriter 인터페이스를 사용할 수 있음.
-# * DataFrameReader와 마찬가지로 다양한 데이터 소스를 지원함.
-# * 기본 포맷은 컬럼 지향 포맷인 Parquet이며 데이터 압축에 snappy 압축을 사용함.
-# * 만약 데이터 프레임이 파케이로 쓰여졌다면 스키마는 파케이 메타데이터의 일부로 보존될 수 있음.
+"""
+* 데이터 프레임을 외부 데이터 소스에 원하는 포맷으로 쓰려면 DataFrameWriter 인터페이스를 사용할 수 있음.
+* DataFrameReader와 마찬가지로 다양한 데이터 소스를 지원함.
+* 기본 포맷은 컬럼 지향 포맷인 Parquet이며 데이터 압축에 snappy 압축을 사용함.
+* 만약 데이터 프레임이 파케이로 쓰여졌다면 스키마는 파케이 메타데이터의 일부로 보존될 수 있음.
+* DataFrameWriter.format(args).option(key, value).bucketBy(args).partitionBy(args).sortBy(args).save(path)
+
+* format(args)
+*   - args: parquet, csv, txt, json, jdbc, orc, avro, ...
+*   - description: 지정하지 않으면 기본값은 파케이 또는 spark.sql.sources.default에 지정된 항목으로 설정됨.
+
+* option(key, value)
+*   - key, value
+*       : mode, {append | overwrite | ignore | error | errorifexists}
+*       : mode, {SaveMode.Overwrite | SaveMode.Append | SaveMode.Ignore | SaveMode.ErrorIfExists}
+*       : path, path_to_write_to
+*   - description: 기본 모드 옵션은 error 또는 errorifexists와 SaveMode.ErrorIfExists. ErrorIfExists는 데이터가 이미 있는 경우 런타임에서 예외 발생
+
+* bucketBy(args)
+*   - args: numBuckets, col, col, ..., coln
+*   - description: 버킷 개수 및 버킷 기준 컬럼 이름. 파일 시스템에서 하이브의 버킷팅 체계를 사용.
+"""
 agg_df.write.format("parquet").save("data/sf-fire.parquet")
 
 spark.stop()

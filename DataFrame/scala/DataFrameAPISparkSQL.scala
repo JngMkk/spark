@@ -4,7 +4,7 @@ import org.apache.spark.sql.types.{StructType, IntegerType, StringType}
 import org.apache.spark.sql.Encoders
 import org.apache.spark.sql.types.DataTypes
 
-object DataFramAPISparkSQLEx {
+object DataFrameAPISparkSQL {
     def main(args: Array[String]) = {
         // 해당 csv 파일에는 헤더가 있기 때문에 이를 사용해 암시적 스키마 검색을 이용해 데이터 프레임으로 빨리 로드할 수 있음.
         val statesDF = spark.read.option("header", "true").option("inferschema", "true").option("sep", ",").csv("statesPopulation.csv")

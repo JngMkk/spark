@@ -104,7 +104,7 @@
 import org.apache.spark._
 import org.apache.spark.sql.functions._
 
-object AggregateFuncEx {
+object AggregateFunc {
     def main(args: Array[String]) = {
         val statesPopDF = spark.read.option("header", "true").option("inferschema", "true").option("sep", ",").csv("statesPopulation.csv")
 
